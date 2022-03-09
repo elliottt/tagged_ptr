@@ -1,16 +1,5 @@
+#include "doctest/doctest.h"
 
-# tagged_ptr
-
-![build](https://github.com/elliottt/tagged_ptr/actions/workflows/main.yml/badge.svg)
-
----
-
-A c++17 generalized tagged pointer to help ease memory usage and speed up runtime type checking.
-
-
-## Example
-
-```c++
 #include <iostream>
 #include "tagged/unique_ptr.h"
 
@@ -25,7 +14,7 @@ public:
 template <typename T>
 void use(T &val) {}
 
-int main() {
+TEST_CASE("readme example") {
 
     Ptr a = Ptr::make<A>();
     auto b = Ptr::make<B>();
@@ -57,15 +46,4 @@ int main() {
     use(bref);
 
     // both a and b behave like std::unique_ptr, and are freed at this point
-    return 0;
 }
-
-```
-
-Please take a look at [the `UniquePtr` tests](tests/unique_ptr_test.cc) for a more in-depth example.
-
-## TODO
-
-* [ ] tagged `shared_ptr` implementation
-* [ ] support for variants that could be inlined in the pointer
-* [ ] remove the first template argument to `UniquePtr`?
