@@ -1,0 +1,58 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout tagged_ptr
+        uses: actions/checkout@v2.3.4
+
+      - name: Setup bazelisk
+        uses: bazelbuild/setup-bazelisk@v1
+
+      - name: Cache llvm and clang
+        id: cache-llvm
+        uses: actions/cache@v2.1.6
+        with:
+          path: |
+            ./llvm
+          key: llvm-12.0.0
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1.4.1
+        with:
+          version: 12.0.0
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+
+      - name: Add clang to the PATH
+        run: |
+          echo "${{ env.LLVM_PATH }}/bin" >> $GITHUB_PATH
+
+      - name: Mount bazel cache
+        uses: actions/cache@v2.1.6
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: bazel
+
+      # Runs a single command using the runners shell
+      - name: Run tests
+        run: |
+          clang --version
+          bazelisk test --build_tests_only //...
