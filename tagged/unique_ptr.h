@@ -51,6 +51,13 @@ template <typename ChildPtr, typename... Types> class UniquePtr {
         delete_helper<1, Types...>(tag, ptr);
     }
 
+protected:
+    // Access the tag for this pointer. This function is protected by default, so that you can choose whether or not to
+    // have it part of your api when you subclass `UniquePtr`.
+    uint16_t tag() const {
+        return static_cast<uint16_t>(this->data & TAG_MASK);
+    }
+
 public:
     // For taking over tagged data
     explicit constexpr UniquePtr(uint64_t data) : data{data} {}
@@ -106,10 +113,6 @@ public:
         return index_of_type<1, T, Types...>();
     }
 
-    uint16_t tag() const {
-        return static_cast<uint16_t>(this->data & TAG_MASK);
-    }
-
     void *get() const {
         return reinterpret_cast<void *>(this->data >> TAG_BITS);
     }
@@ -147,6 +150,6 @@ public:
     }
 };
 
-} // namespace nsml::util
+} // namespace tagged
 
 #endif

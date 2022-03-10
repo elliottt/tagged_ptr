@@ -11,8 +11,8 @@ A c++17 generalized tagged pointer to help ease memory usage and speed up runtim
 ## Example
 
 ```c++
-#include <iostream>
 #include "tagged/unique_ptr.h"
+#include <iostream>
 
 class A {};
 class B {};
@@ -20,10 +20,12 @@ class B {};
 class Ptr final : public tagged::UniquePtr<Ptr, A, B> {
 public:
     using UniquePtr::UniquePtr;
+
+    // Use the builtin tag function that returns `uint16_t` tags.
+    using UniquePtr::tag;
 };
 
-template <typename T>
-void use(T &val) {}
+template <typename T> void use(T &val) {}
 
 int main() {
 

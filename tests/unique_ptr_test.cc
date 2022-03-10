@@ -16,6 +16,19 @@ public:
     using UniquePtr::UniquePtr;
 
     std::string show() const;
+
+    enum class Tag {
+        None = 0, // this case exists for the null pointer
+        Var = tag_of<Var>(),
+        Lit = tag_of<Lit>(),
+        Binop = tag_of<Binop>(),
+    };
+
+    // Keep `UniquePtr::tag` hidden, and expose a typed interface to the tag instead. This way we can get exhaustiveness
+    // checking everywhere the `tag` function is used.
+    Tag tag() const {
+        return static_cast<Tag>(UniquePtr::tag());
+    }
 };
 
 class Var final {
@@ -79,13 +92,13 @@ public:
 
 std::string ExprPtr::show() const {
     switch (this->tag()) {
-    case tag_of<Var>():
+    case Tag::Var:
         return this->cast<Var>().show();
 
-    case tag_of<Lit>():
+    case Tag::Lit:
         return this->cast<Lit>().show();
 
-    case tag_of<Binop>():
+    case Tag::Binop:
         return this->cast<Binop>().show();
 
     default:
@@ -98,7 +111,7 @@ using Env = std::unordered_map<std::string, int32_t>;
 ExprPtr simplify(Env &env, ExprPtr e) {
     switch (e.tag()) {
 
-    case ExprPtr::tag_of<Var>(): {
+    case ExprPtr::Tag::Var: {
         auto &var = e.cast<Var>();
         auto it = env.find(var.name);
         if (it != env.end()) {
@@ -107,10 +120,10 @@ ExprPtr simplify(Env &env, ExprPtr e) {
         break;
     }
 
-    case ExprPtr::tag_of<Lit>():
+    case ExprPtr::Tag::Lit:
         break;
 
-    case ExprPtr::tag_of<Binop>(): {
+    case ExprPtr::Tag::Binop: {
         auto &binop = e.cast<Binop>();
         binop.left = simplify(env, std::move(binop.left));
         binop.right = simplify(env, std::move(binop.right));
@@ -129,6 +142,9 @@ ExprPtr simplify(Env &env, ExprPtr e) {
 
         break;
     }
+
+    case ExprPtr::Tag::None:
+        break;
     }
 
     return e;
