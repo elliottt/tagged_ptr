@@ -134,6 +134,25 @@ ExprPtr simplify(Env &env, ExprPtr e) {
     return e;
 }
 
+class Increment {
+public:
+    int &count;
+
+    Increment(int &count) : count{count} {}
+    ~Increment() {
+        count++;
+    }
+};
+
+class SimplePtr final : public tagged::UniquePtr<SimplePtr, Increment> {
+public:
+    using UniquePtr::UniquePtr;
+};
+
+SimplePtr pass_through(SimplePtr p) {
+    return p;
+}
+
 TEST_CASE("UniquePtr") {
     auto var = ExprPtr::make<Var>("x");
     CHECK_EQ(1, ExprPtr::tag_of<Var>());
@@ -144,4 +163,11 @@ TEST_CASE("UniquePtr") {
     Env env{{"x", 5}};
     e = simplify(env, std::move(e));
     CHECK_EQ("10", e.show());
+
+    SUBCASE("move assignment") {
+        int count = 0;
+        auto x = SimplePtr::make<Increment>(count);
+        x = std::move(x);
+        CHECK_EQ(0, count);
+    }
 }

@@ -10,7 +10,12 @@ test_suite(
 cc_test(
     name = "unique_ptr_test",
     srcs = ["unique_ptr_test.cc"],
-    copts = ["-std=c++17"],
+    copts = [
+        "-std=c++17",
+
+        # Warnings disabled for testing bad behavior
+        "-Wno-self-move",
+    ],
     deps = [
         "//tagged",
         "@doctest//doctest",
