@@ -70,6 +70,10 @@ public:
     }
 
     UniquePtr &operator=(UniquePtr &&other) {
+        if (*this == other) {
+            return *this;
+        }
+
         this->cleanup();
 
         // cleanup will zero out our data
