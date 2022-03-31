@@ -5,18 +5,13 @@
 #include <type_traits>
 #include <utility>
 
+#include "tagged/tagging.h"
+
 namespace tagged {
 
 // A tagged unique_ptr style pointer to one of a collection of types.
 template <typename ChildPtr, typename... Types> class UniquePtr {
-    uint64_t data;
-
-    static constexpr uint64_t TAG_BITS = 16;
-    static constexpr uint64_t TAG_MASK = 0xffff;
-
-    static constexpr uint64_t tagged_data(uint16_t tag, void *data) {
-        return static_cast<uint64_t>(tag) | (reinterpret_cast<uint64_t>(data) << TAG_BITS);
-    }
+    TaggedPtr ptr;
 
     template <uint16_t Acc, typename X, typename Y, typename... Rest> static constexpr uint16_t index_of_type() {
         if constexpr (std::is_same<X, Y>::value) {
@@ -40,13 +35,13 @@ template <typename ChildPtr, typename... Types> class UniquePtr {
     }
 
     void cleanup() {
-        if (this->data == 0) {
+        if (this->ptr == nullptr) {
             return;
         }
 
         auto tag = this->tag();
         auto ptr = this->get();
-        this->data = 0;
+        this->ptr = nullptr;
 
         delete_helper<1, Types...>(tag, ptr);
     }
@@ -55,15 +50,15 @@ protected:
     // Access the tag for this pointer. This function is protected by default, so that you can choose whether or not to
     // have it part of your api when you subclass `UniquePtr`.
     uint16_t tag() const {
-        return static_cast<uint16_t>(this->data & TAG_MASK);
+        return this->ptr.tag();
     }
 
 public:
     // For taking over tagged data
-    explicit constexpr UniquePtr(uint64_t data) : data{data} {}
+    explicit constexpr UniquePtr(TaggedPtr ptr) : ptr{ptr} {}
 
-    constexpr UniquePtr() : data{0} {}
-    constexpr UniquePtr(std::nullptr_t) : data{0} {}
+    constexpr UniquePtr() : ptr{0} {}
+    constexpr UniquePtr(std::nullptr_t) : ptr{0} {}
 
     ~UniquePtr() {
         this->cleanup();
@@ -72,8 +67,8 @@ public:
     UniquePtr(const UniquePtr &other) = delete;
     UniquePtr &operator=(const UniquePtr &other) = delete;
 
-    UniquePtr(UniquePtr &&other) : data{other.data} {
-        other.data = 0;
+    UniquePtr(UniquePtr &&other) : ptr{other.ptr} {
+        other.ptr = nullptr;
     }
 
     UniquePtr &operator=(UniquePtr &&other) {
@@ -84,29 +79,29 @@ public:
         this->cleanup();
 
         // cleanup will zero out our data
-        std::swap(this->data, other.data);
+        std::swap(this->ptr, other.ptr);
 
         return *this;
     }
 
     bool operator==(std::nullptr_t) const {
-        return this->data == 0;
+        return this->ptr == nullptr;
     }
 
     bool operator!=(std::nullptr_t) const {
-        return this->data != 0;
+        return this->ptr != nullptr;
     }
 
     operator bool() const {
-        return this->data != 0;
+        return this->ptr != nullptr;
     }
 
     bool operator==(const UniquePtr &other) const {
-        return this->data == other.data;
+        return this->ptr == other.ptr;
     }
 
     bool operator!=(const UniquePtr &other) const {
-        return this->data != other.data;
+        return this->ptr != other.ptr;
     }
 
     template <typename T> static constexpr uint16_t tag_of() {
@@ -114,11 +109,11 @@ public:
     }
 
     void *get() const {
-        return reinterpret_cast<void *>(this->data >> TAG_BITS);
+        return this->ptr.get();
     }
 
     template <typename T, typename... Args> static ChildPtr make(Args &&...args) {
-        return ChildPtr{tagged_data(tag_of<T>(), new T(std::forward<Args>(args)...))};
+        return ChildPtr{TaggedPtr(tag_of<T>(), new T(std::forward<Args>(args)...))};
     }
 
     template <typename T> bool isa() const {
