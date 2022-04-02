@@ -7,6 +7,7 @@
 
 namespace tagged {
 
+// A tagged shared_ptr style pointer to one of a collection of types.
 template <typename ChildPtr, typename... Types> class SharedPtr {
 
     std::atomic<int> *refs;
@@ -26,7 +27,6 @@ template <typename ChildPtr, typename... Types> class SharedPtr {
 
         auto tag = this->ptr.tag();
         auto ptr = this->ptr.get();
-        this->ptr = nullptr;
 
         helpers.destroy(tag, ptr);
         delete this->refs;
@@ -61,6 +61,9 @@ public:
             return;
         }
 
+        this->refs = nullptr;
+        this->ptr = nullptr;
+
         std::swap(other.refs, this->refs);
         std::swap(other.ptr, this->ptr);
     }
@@ -94,6 +97,9 @@ public:
         }
 
         this->release();
+        this->refs = nullptr;
+        this->ptr = nullptr;
+
         std::swap(other.refs, this->refs);
         std::swap(other.ptr, this->ptr);
 
