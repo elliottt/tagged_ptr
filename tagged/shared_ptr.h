@@ -70,6 +70,7 @@ public:
 
     ~SharedPtr() {
         this->release();
+        this->refs = nullptr;
     }
 
     SharedPtr &operator=(const SharedPtr &other) {
@@ -107,23 +108,23 @@ public:
     }
 
     bool operator==(std::nullptr_t) const {
-        return this->ptr == nullptr;
+        return this->refs == nullptr;
     }
 
     bool operator!=(std::nullptr_t) const {
-        return this->ptr != nullptr;
+        return this->refs != nullptr;
     }
 
     operator bool() const {
-        return this->ptr != nullptr;
+        return this->refs != nullptr;
     }
 
     bool operator==(const SharedPtr &other) const {
-        return this->ptr == other.ptr;
+        return this->refs == other.refs;
     }
 
     bool operator!=(const SharedPtr &other) const {
-        return this->ptr != other.ptr;
+        return this->refs != other.refs;
     }
 
     void *get() const {
