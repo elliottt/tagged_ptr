@@ -68,6 +68,6 @@ Please take a look at [the `UniquePtr` tests](tests/unique_ptr_test.cc) for a mo
 
 ## TODO
 
-* [ ] tagged `shared_ptr` implementation
 * [ ] support for variants that could be inlined in the pointer
-* [ ] remove the first template argument to `UniquePtr`?
+* [ ] remove the first template argument to `UniquePtr` and `SharedPtr`?
+* [x] tagged `shared_ptr` implementation

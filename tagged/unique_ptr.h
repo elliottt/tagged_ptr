@@ -13,26 +13,7 @@ namespace tagged {
 template <typename ChildPtr, typename... Types> class UniquePtr {
     TaggedPtr ptr;
 
-    template <uint16_t Acc, typename X, typename Y, typename... Rest> static constexpr uint16_t index_of_type() {
-        if constexpr (std::is_same<X, Y>::value) {
-            return Acc;
-        } else {
-            static_assert(sizeof...(Rest) > 0, "Type not present in tagged pointer");
-            return index_of_type<1 + Acc, X, Rest...>();
-        }
-    }
-
-    template <uint16_t Ix, typename T, typename... Rest> static void delete_helper(uint16_t tag, void *data) {
-        if (tag == Ix) {
-            delete reinterpret_cast<T *>(data);
-        } else {
-            delete_helper<Ix + 1, Rest...>(tag, data);
-        }
-    }
-
-    template <uint16_t Ix> static void delete_helper(uint16_t tag, void *data) {
-        return;
-    }
+    static constexpr detail::TagHelpers<Types...> helpers;
 
     void cleanup() {
         if (this->ptr == nullptr) {
@@ -43,7 +24,7 @@ template <typename ChildPtr, typename... Types> class UniquePtr {
         auto ptr = this->get();
         this->ptr = nullptr;
 
-        delete_helper<1, Types...>(tag, ptr);
+        helpers.destroy(tag, ptr);
     }
 
 protected:
@@ -54,7 +35,7 @@ protected:
     }
 
 public:
-    // For taking over tagged data
+    // Initialization of tagged data from the make function
     explicit constexpr UniquePtr(TaggedPtr ptr) : ptr{ptr} {}
 
     constexpr UniquePtr() : ptr{0} {}
@@ -105,7 +86,7 @@ public:
     }
 
     template <typename T> static constexpr uint16_t tag_of() {
-        return index_of_type<1, T, Types...>();
+        return helpers.template index_of_type<1, T, Types...>();
     }
 
     void *get() const {

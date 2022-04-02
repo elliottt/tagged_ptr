@@ -5,6 +5,40 @@
 
 namespace tagged {
 
+namespace detail {
+
+template <typename... Types> class TagHelpers final {
+
+    template <uint16_t Ix, typename T, typename... Rest> static void delete_helper(uint16_t tag, void *data) {
+        if (tag == Ix) {
+            delete reinterpret_cast<T *>(data);
+        } else {
+            delete_helper<Ix + 1, Rest...>(tag, data);
+        }
+    }
+
+    template <uint16_t Ix> static void delete_helper(uint16_t tag, void *data) {
+        return;
+    }
+
+public:
+
+    static void destroy(uint16_t tag, void *ptr) {
+        delete_helper<1, Types...>(tag, ptr);
+    }
+
+    template <uint16_t Acc, typename X, typename Y, typename... Rest> static constexpr uint16_t index_of_type() {
+        if constexpr (std::is_same<X, Y>::value) {
+            return Acc;
+        } else {
+            static_assert(sizeof...(Rest) > 0, "Type not present in tagged pointer");
+            return index_of_type<1 + Acc, X, Rest...>();
+        }
+    }
+};
+
+} // namespace detail
+
 class TaggedPtr final {
 
     uint64_t data;
@@ -45,7 +79,6 @@ public:
     inline bool operator!=(const TaggedPtr &other) const {
         return this->data != other.data;
     }
-
 };
 
 } // namespace tagged

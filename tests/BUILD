@@ -3,6 +3,7 @@ test_suite(
     name = "tests",
     tests = [
         "unique_ptr_test",
+        "shared_ptr_test",
         "readme_example",
     ],
 )
@@ -10,6 +11,22 @@ test_suite(
 cc_test(
     name = "unique_ptr_test",
     srcs = ["unique_ptr_test.cc"],
+    copts = [
+        "-std=c++17",
+
+        # Warnings disabled for testing bad behavior
+        "-Wno-self-move",
+    ],
+    deps = [
+        "//tagged",
+        "@doctest//doctest",
+        "@doctest//doctest:main",
+    ],
+)
+
+cc_test(
+    name = "shared_ptr_test",
+    srcs = ["shared_ptr_test.cc"],
     copts = [
         "-std=c++17",
 
