@@ -43,8 +43,8 @@ public:
     // Initialization of tagged data from the make function
     explicit SharedPtr(TaggedPtr ptr) : refs{new std::atomic<int>(1)}, ptr{ptr} {}
 
-    explicit SharedPtr() : refs{nullptr}, ptr{nullptr} {}
-    explicit SharedPtr(std::nullptr_t) : SharedPtr{} {}
+    SharedPtr() : refs{nullptr}, ptr{nullptr} {}
+    SharedPtr(std::nullptr_t) : SharedPtr{} {}
 
     SharedPtr(const SharedPtr &other) {
         if (*this == other || other.refs == nullptr) {
