@@ -46,7 +46,7 @@ public:
     SharedPtr() : refs{nullptr}, ptr{nullptr} {}
     SharedPtr(std::nullptr_t) : SharedPtr{} {}
 
-    SharedPtr(const SharedPtr &other) {
+    SharedPtr(const SharedPtr &other) : refs{nullptr} {
         if (*this == other || other.refs == nullptr) {
             return;
         }
@@ -56,7 +56,7 @@ public:
         this->ptr = other.ptr;
     }
 
-    SharedPtr(SharedPtr &&other) {
+    SharedPtr(SharedPtr &&other) : refs{nullptr} {
         if (*this == other || other.refs == nullptr) {
             return;
         }
