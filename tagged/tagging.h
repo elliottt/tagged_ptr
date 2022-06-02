@@ -2,6 +2,7 @@
 #define TAGGED_TAGGING_H
 
 #include <cstdint>
+#include <utility>
 
 namespace tagged {
 
@@ -78,6 +79,10 @@ public:
 
     inline bool operator!=(const TaggedPtr &other) const {
         return this->data != other.data;
+    }
+
+    friend void swap(TaggedPtr &a, TaggedPtr &b) {
+        std::swap(a.data, b.data);
     }
 };
 

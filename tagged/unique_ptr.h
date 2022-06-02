@@ -60,7 +60,7 @@ public:
         this->cleanup();
 
         // cleanup will zero out our data
-        std::swap(this->ptr, other.ptr);
+        swap(*this, other);
 
         return *this;
     }
@@ -123,6 +123,10 @@ public:
         } else {
             return nullptr;
         }
+    }
+
+    friend void swap(UniquePtr &a, UniquePtr &b) {
+        swap(a.ptr, b.ptr);
     }
 };
 

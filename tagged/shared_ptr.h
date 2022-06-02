@@ -64,8 +64,7 @@ public:
         this->refs = nullptr;
         this->ptr = nullptr;
 
-        std::swap(other.refs, this->refs);
-        std::swap(other.ptr, this->ptr);
+        swap(*this, other);
     }
 
     ~SharedPtr() {
@@ -101,8 +100,7 @@ public:
         this->refs = nullptr;
         this->ptr = nullptr;
 
-        std::swap(other.refs, this->refs);
-        std::swap(other.ptr, this->ptr);
+        swap(*this, other);
 
         return *this;
     }
@@ -165,6 +163,11 @@ public:
         } else {
             return nullptr;
         }
+    }
+
+    friend void swap(SharedPtr &a, SharedPtr &b) {
+        swap(a.refs, b.refs);
+        swap(a.ptr, b.ptr);
     }
 };
 

@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <type_traits>
 
 #include "tagged/unique_ptr.h"
 
@@ -30,6 +31,8 @@ public:
         return static_cast<Tag>(UniquePtr::tag());
     }
 };
+
+static_assert(std::is_swappable<ExprPtr>::value);
 
 class Var final {
 public:
@@ -165,6 +168,8 @@ public:
     using UniquePtr::UniquePtr;
 };
 
+static_assert(std::is_swappable<SimplePtr>::value);
+
 SimplePtr pass_through(SimplePtr p) {
     return p;
 }
@@ -186,4 +191,5 @@ TEST_CASE("UniquePtr") {
         x = std::move(x);
         CHECK_EQ(0, count);
     }
+
 }
