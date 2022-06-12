@@ -1,11 +1,8 @@
 #include "doctest/doctest.h"
 #include <cstdint>
-#include <string>
-#include <unordered_map>
+#include <type_traits>
 
 #include "tagged/shared_ptr.h"
-
-using namespace std::literals::string_view_literals;
 
 class Empty final {};
 
@@ -27,6 +24,8 @@ public:
     using SharedPtr::SharedPtr;
     using SharedPtr::tag;
 };
+
+static_assert(std::is_swappable<DeleteTrackingPtr>::value);
 
 TEST_CASE("Ref counting") {
     bool deleted;
