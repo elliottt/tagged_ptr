@@ -17,6 +17,7 @@ cc_test(
         # Warnings disabled for testing bad behavior
         "-Wno-self-move",
     ],
+    linkstatic = True,
     deps = [
         "//tagged",
         "@doctest//doctest",
@@ -33,6 +34,7 @@ cc_test(
         # Warnings disabled for testing bad behavior
         "-Wno-self-move",
     ],
+    linkstatic = True,
     deps = [
         "//tagged",
         "@doctest//doctest",
@@ -44,6 +46,7 @@ cc_test(
     name = "readme_example",
     srcs = ["readme_example.cc"],
     copts = ["-std=c++17"],
+    linkstatic = True,
     deps = [
         "//tagged",
         "@doctest//doctest",
