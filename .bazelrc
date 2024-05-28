@@ -1,9 +1,0 @@
-build --repo_env=CC=clang
-test --repo_env=CC=clang
-
-build:sanitized --strip=never
-build:sanitized --copt -fno-omit-frame-pointer
-build:sanitized --copt -Og --copt -g
-build:sanitized --copt    -fsanitize=address,undefined,alignment,null,return,shift
-build:sanitized --linkopt -fsanitize=address,undefined,alignment,null,return,shift
-build:sanitized --copt -fno-sanitize=vptr,function

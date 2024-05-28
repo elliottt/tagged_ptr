@@ -13,7 +13,7 @@ template <typename ChildPtr, typename... Types> class SharedPtr {
     std::atomic<int> *refs;
     TaggedPtr ptr;
 
-    static constexpr detail::TagHelpers<Types...> helpers;
+    static constexpr detail::TagHelpers<Types...> helpers{};
 
     void release() {
         if (this->refs == nullptr) {
